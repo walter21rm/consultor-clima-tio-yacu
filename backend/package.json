@@ -1,0 +1,27 @@
+{
+  "name": "consultor-clima-backend",
+  "version": "1.0.0",
+  "description": "API de consulta meteorológica con JWT y WeatherAPI",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "jest --runInBand",
+    "test:basic": "jest --runInBand tests/basic",
+    "test:intermediate": "jest --runInBand tests/intermediate",
+    "test:advanced": "jest --runInBand tests/advanced"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}

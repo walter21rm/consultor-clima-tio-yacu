@@ -1,0 +1,15 @@
+{
+  "name": "consultor-clima",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Consultor de clima por países/regiones — curso Desarrollo de aplicaciones para la nube",
+  "scripts": {
+    "start": "npm --prefix backend start",
+    "dev": "npm --prefix backend run dev",
+    "test": "npm --prefix backend test",
+    "test:basic": "npm --prefix backend run test:basic",
+    "test:intermediate": "npm --prefix backend run test:intermediate",
+    "test:advanced": "npm --prefix backend run test:advanced",
+    "install:all": "npm --prefix backend install"
+  }
+}
