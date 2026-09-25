@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { DatabaseSync } = require('node:sqlite');
+const { OFFICIAL_2025, SOURCE } = require('../data/officialVisitors');
 
 let db;
 
@@ -14,56 +15,35 @@ function getDb() {
 
   db = new DatabaseSync(target);
   db.exec(`
-    CREATE TABLE IF NOT EXISTS attendance (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      visit_date TEXT NOT NULL UNIQUE,
-      attendees INTEGER NOT NULL,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
+    CREATE TABLE IF NOT EXISTS monthly_visitors (
+      year INTEGER NOT NULL,
+      month INTEGER NOT NULL,
+      visitors INTEGER NOT NULL,
+      source TEXT NOT NULL,
+      PRIMARY KEY (year, month)
     )
   `);
+
+  const insert = db.prepare(
+    `INSERT INTO monthly_visitors (year, month, visitors, source)
+     VALUES (?, ?, ?, ?)
+     ON CONFLICT(year, month) DO UPDATE SET visitors = excluded.visitors, source = excluded.source`
+  );
+  for (const row of OFFICIAL_2025) {
+    insert.run(2025, row.month, row.visitors, SOURCE);
+  }
+
   return db;
 }
 
-function listAttendance() {
-  return getDb()
-    .prepare(
-      'SELECT visit_date AS date, attendees FROM attendance ORDER BY visit_date DESC'
-    )
-    .all();
-}
-
-function findAttendance(date) {
+function findOfficialMonth(month) {
   return (
     getDb()
       .prepare(
-        'SELECT visit_date AS date, attendees FROM attendance WHERE visit_date = ?'
+        'SELECT year, month, visitors, source FROM monthly_visitors WHERE month = ? ORDER BY year DESC LIMIT 1'
       )
-      .get(date) || null
+      .get(month) || null
   );
 }
 
-function saveAttendance(date, attendees) {
-  const now = new Date().toISOString();
-  getDb()
-    .prepare(
-      `INSERT INTO attendance (visit_date, attendees, created_at, updated_at)
-       VALUES (?, ?, ?, ?)
-       ON CONFLICT(visit_date) DO UPDATE SET
-         attendees = excluded.attendees,
-         updated_at = excluded.updated_at`
-    )
-    .run(date, attendees, now, now);
-  return findAttendance(date);
-}
-
-function clearAttendance() {
-  getDb().exec('DELETE FROM attendance');
-}
-
-module.exports = {
-  listAttendance,
-  findAttendance,
-  saveAttendance,
-  clearAttendance,
-};
+module.exports = { findOfficialMonth, SOURCE };

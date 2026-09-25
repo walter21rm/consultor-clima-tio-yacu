@@ -1,15 +1,7 @@
 const request = require('supertest');
 const { createApp, loginAsDemo, authHeader } = require('../helpers');
-const { clearAttendance } = require('../../src/db/attendanceDb');
-const { formatDate } = require('../../src/services/predictionService');
 
-function shiftDays(days) {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return formatDate(date);
-}
-
-describe('[Intermedio] Asistencia Tío Yacu', () => {
+describe('[Intermedio] Consulta histórica Tío Yacu', () => {
   const app = createApp();
   let token;
 
@@ -17,79 +9,53 @@ describe('[Intermedio] Asistencia Tío Yacu', () => {
     token = await loginAsDemo(app);
   });
 
-  beforeEach(() => {
-    clearAttendance();
+  test('exige sesión para consultar una fecha', async () => {
+    const res = await request(app).get('/api/v1/tioyacu/consult?date=2026-08-15');
+    expect(res.status).toBe(401);
   });
 
-  test('exige sesión para registrar y listar', async () => {
-    const post = await request(app)
-      .post('/api/v1/tioyacu/attendance')
-      .send({ date: shiftDays(-1), attendees: 10 });
-    const list = await request(app).get('/api/v1/tioyacu/attendance');
-
-    expect(post.status).toBe(401);
-    expect(list.status).toBe(401);
-  });
-
-  test('registra una fecha pasada y la lista de más reciente a más antigua', async () => {
-    const older = shiftDays(-10);
-    const newer = shiftDays(-1);
-
-    const first = await request(app)
-      .post('/api/v1/tioyacu/attendance')
-      .set(authHeader(token))
-      .send({ date: older, attendees: 40 });
-    const second = await request(app)
-      .post('/api/v1/tioyacu/attendance')
-      .set(authHeader(token))
-      .send({ date: newer, attendees: 90 });
-
-    expect(first.status).toBe(200);
-    expect(second.body).toEqual({
-      date: newer,
-      attendees: 90,
-      source: 'registrado',
+  test('una fecha pasada devuelve asistencia y clima sin que el usuario los cargue', async () => {
+    const time = Array.from(
+      { length: 31 },
+      (_, index) => `2026-08-${String(index + 1).padStart(2, '0')}`
+    );
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        daily: {
+          time,
+          weather_code: time.map((day) => (day === '2026-08-15' ? 61 : 0)),
+          temperature_2m_mean: time.map(() => 22.4),
+          relative_humidity_2m_mean: time.map(() => 88),
+          precipitation_sum: time.map((day) => (day === '2026-08-15' ? 12 : 0)),
+        },
+      }),
     });
 
-    const list = await request(app)
-      .get('/api/v1/tioyacu/attendance')
+    const res = await request(app)
+      .get('/api/v1/tioyacu/consult?date=2026-08-15')
       .set(authHeader(token));
 
-    expect(list.body.records.map((item) => item.date)).toEqual([newer, older]);
+    expect(res.status).toBe(200);
+    expect(res.body.kind).toBe('pasado');
+    expect(res.body.attendees).toBeGreaterThan(0);
+    expect(res.body.attendees).toBeLessThan(31233);
+    expect(res.body.weather).toEqual({
+      temperature: '22°C',
+      condition: 'Lluvia',
+      humidity: '88%',
+    });
+    expect(res.body.officialMonth).toEqual(
+      expect.objectContaining({ year: 2025, month: 8, visitors: 31233 })
+    );
+    expect(res.body.note).toMatch(/DIRCETUR/i);
   });
 
-  test('actualiza la asistencia si la fecha ya existe', async () => {
-    const date = shiftDays(-3);
-    await request(app)
-      .post('/api/v1/tioyacu/attendance')
-      .set(authHeader(token))
-      .send({ date, attendees: 10 });
-
-    const updated = await request(app)
-      .post('/api/v1/tioyacu/attendance')
-      .set(authHeader(token))
-      .send({ date, attendees: 55 });
-
-    expect(updated.status).toBe(200);
-    expect(updated.body.attendees).toBe(55);
-
-    const list = await request(app)
-      .get('/api/v1/tioyacu/attendance')
+  test('rechaza una fecha inválida', async () => {
+    const res = await request(app)
+      .get('/api/v1/tioyacu/consult?date=2026-13-40')
       .set(authHeader(token));
-    expect(list.body.records).toHaveLength(1);
-  });
-
-  test('rechaza una fecha futura y una cantidad inválida', async () => {
-    const future = await request(app)
-      .post('/api/v1/tioyacu/attendance')
-      .set(authHeader(token))
-      .send({ date: shiftDays(3), attendees: 10 });
-    const invalid = await request(app)
-      .post('/api/v1/tioyacu/attendance')
-      .set(authHeader(token))
-      .send({ date: shiftDays(-1), attendees: -4 });
-
-    expect(future.status).toBe(400);
-    expect(invalid.status).toBe(400);
+    expect(res.status).toBe(400);
   });
 });

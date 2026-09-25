@@ -14,21 +14,21 @@ Documento de especificación. No se implementa ni se despliega hasta tu visto bu
 | Auth | El JWT que ya existe (`admin` / `admin123`) |
 | Despliegue | AWS EC2, solo después de aprobar esta SDD y la implementación |
 
-**Objetivo:** registrar cuánta gente asistió en fechas pasadas y, para una fecha futura, estimar la asistencia y decir si conviene ir o no ir según el clima previsto.
+**Objetivo:** al elegir una fecha pasada, mostrar cuánta gente asistió y cómo estuvo el clima ese día. Al elegir una fecha futura, estimar la asistencia y decir si conviene ir o no ir. El usuario no carga esos datos.
 
 ## 2. Alcance
 
 Incluye:
 
-- Registrar asistencia de una fecha pasada (fecha + cantidad de personas).
-- Listar asistencias anteriores.
+- Consultar una fecha pasada y ver la asistencia de ese día y el clima real (temperatura, estado, humedad).
+- Esos datos salen de la base, no de un formulario del usuario.
 - Predecir la asistencia de una fecha futura.
 - Indicar **ir** o **no ir** según el clima de esa fecha futura.
-- Mostrar el clima usado en esa predicción (temperatura, estado, humedad).
-- Explicar en una frase por qué sube o baja la estimación y por qué conviene ir o no.
+- Explicar de dónde sale la cifra.
 
 No incluye:
 
+- Que el usuario registre a mano cuánta gente fue.
 - Varios sitios turísticos.
 - Pagos, boletería ni usuarios distintos del login demo.
 - Un modelo de machine learning.
@@ -36,20 +36,18 @@ No incluye:
 
 ## 3. Requerimientos funcionales
 
-1. El sistema exige sesión activa (JWT) en todas las operaciones de asistencia y predicción.
-2. El usuario puede guardar la asistencia de una fecha ya ocurrida: fecha (`YYYY-MM-DD`) y cantidad de personas (entero mayor o igual a 0).
-3. Si esa fecha ya tiene un registro, el sistema lo actualiza.
-4. El usuario puede consultar el historial, ordenado de la fecha más reciente a la más antigua.
-5. El usuario puede pedir la predicción de una fecha futura.
-6. Para esa fecha el sistema consulta el pronóstico de WeatherAPI en Rioja.
-7. La predicción usa el historial guardado y ajusta el número según el clima y si la fecha cae en fin de semana.
-8. La respuesta de una fecha futura muestra personas estimadas, clima, el motivo del ajuste y la indicación **ir** o **no ir**.
-9. Si no hay historial, la base es 80 personas entre semana y 140 el fin de semana (valores de arranque del curso, editables luego).
-10. Una fecha futura no se puede guardar como asistencia real. Una fecha pasada no se predice: se muestra el registro guardado si existe.
+1. El sistema exige sesión activa (JWT) para consultar una fecha.
+2. El usuario elige una fecha y pulsa **Consultar**. No escribe la cantidad de personas.
+3. Si la fecha ya pasó, el sistema muestra cuánta gente asistió ese día y el clima real de Rioja (Open-Meteo).
+4. Si la fecha es futura, el sistema consulta el pronóstico de WeatherAPI en Rioja, estima la asistencia e indica **ir** o **no ir**.
+5. La base numérica son los totales mensuales oficiales de 2025, guardados en SQLite. DIRCETUR no publica el conteo de cada día.
+6. La asistencia de un día pasado es la parte de ese total mensual que corresponde al clima y al tipo de día. Los días del mes suman el total oficial.
+7. Si el año pedido todavía no tiene total oficial, se usa el mismo mes de 2025 y la nota lo dice. El clima sí es el de la fecha elegida.
+8. La respuesta de una fecha futura muestra personas estimadas, clima, el motivo y la indicación **ir** o **no ir**.
 
 ## 4. Regla de predicción
 
-Base = promedio de asistencias guardadas del mismo tipo de día (entre semana o fin de semana). Si no hay datos de ese tipo, se usa 80 o 140.
+Base = visitantes oficiales de ese mes en 2025 dividido entre los días del mes. Agosto: 31 233 / 31 ≈ 1 008 personas.
 
 Ajustes sobre la base, aplicados en este orden y luego redondeados a entero, con mínimo 0:
 
@@ -60,9 +58,9 @@ Ajustes sobre la base, aplicados en este orden y luego redondeados a entero, con
 | Soleado o despejado | +15 % |
 | Temperatura menor a 18 °C | −10 % adicional |
 | Temperatura mayor a 30 °C | −5 % adicional |
-| Sábado o domingo | +25 % si la base salió solo de días de semana |
+| Sábado o domingo | +15 % |
 
-Ejemplo: base 100, sábado soleado y 24 °C → 100 × 1.15 × 1.25 = 144 personas.
+En una fecha pasada no se usa esta fórmula. Ese día recibe una parte del total mensual según si llovió y si fue fin de semana, de modo que los días del mes suman el total oficial.
 
 ## 4.1 Indicación de ir o no ir
 
@@ -84,59 +82,54 @@ Si se cumplen lluvia y frío a la vez, la indicación es **no ir** y el texto me
 
 ## 5. Base de datos
 
-Tabla `attendance`:
+Sí se usa base de datos: SQLite en `backend/data/tioyacu.db`.
+
+Tabla `monthly_visitors`:
 
 | Columna | Tipo | Regla |
 | --- | --- | --- |
-| id | entero | clave primaria |
-| visit_date | texto `YYYY-MM-DD` | única |
-| attendees | entero | ≥ 0 |
-| created_at | texto ISO | automático |
-| updated_at | texto ISO | automático |
+| year | entero | parte de la clave |
+| month | entero | parte de la clave, 1 a 12 |
+| visitors | entero | total oficial del mes |
+| source | texto | DIRCETUR San Martín / MINCETUR |
 
-El archivo SQLite no se sube a Git.
+Al iniciar, se cargan los 12 meses de 2025. Agosto 2025: 31 233 visitantes. El año suma 341 528.
+
+El archivo SQLite no se sube a Git. Los totales oficiales sí van en el código que llena la tabla.
 
 ## 6. Diseño de API
 
 Todas las rutas llevan `Authorization: Bearer <token_jwt>`.
 
-### Registrar o actualizar asistencia pasada
+### Consultar una fecha
 
-`POST /api/v1/tioyacu/attendance`
+`GET /api/v1/tioyacu/consult?date=2026-08-15`
 
-```json
-{ "date": "2026-08-15", "attendees": 120 }
-```
-
-`200 OK`:
+Fecha pasada, `200 OK`:
 
 ```json
 {
+  "place": "Tío Yacu",
+  "location": "Rioja",
   "date": "2026-08-15",
-  "attendees": 120,
-  "source": "registrado"
+  "kind": "pasado",
+  "attendees": 980,
+  "weather": {
+    "temperature": "22°C",
+    "condition": "Lluvia",
+    "humidity": "88%"
+  },
+  "officialMonth": {
+    "year": 2025,
+    "month": 8,
+    "visitors": 31233,
+    "source": "DIRCETUR San Martín / MINCETUR, Reporte Regional de Turismo San Martín 2025"
+  },
+  "note": "Aún no hay total oficial de 2026. La asistencia del día reparte el total de agosto 2025."
 }
 ```
 
-Errores: `400` fecha inválida, fecha futura o cantidad inválida. `401` sin sesión.
-
-### Historial
-
-`GET /api/v1/tioyacu/attendance`
-
-`200 OK`:
-
-```json
-{
-  "records": [
-    { "date": "2026-08-15", "attendees": 120 }
-  ]
-}
-```
-
-### Predicción
-
-`GET /api/v1/tioyacu/prediction?date=2026-10-04`
+Fecha futura, el mismo endpoint:
 
 `200 OK`:
 
@@ -157,34 +150,30 @@ Errores: `400` fecha inválida, fecha futura o cantidad inválida. `401` sin ses
 }
 ```
 
-Si la fecha es pasada y ya hay registro, responde ese número con `"source": "registrado"` y no inventa una predicción.
-
-Errores: `400` fecha inválida. `401` sin sesión. `502` si WeatherAPI falla en una fecha futura.
+Errores: `400` fecha inválida. `401` sin sesión. `502` si falla el clima histórico o el pronóstico.
 
 ## 7. Interfaz
 
 Nueva vista **Tío Yacu**, accesible tras el login, además de la consulta de clima que ya existe.
 
-- Campo de fecha.
-- Campo de cantidad de personas y botón **Registrar asistencia** (solo fechas pasadas).
-- Botón **Predecir** para la fecha elegida.
-- Tabla del historial: fecha y personas.
-- Resultado de predicción: personas estimadas, temperatura, estado, humedad, el motivo y un aviso visible de **Ir** o **No ir**.
+- Campo de fecha y botón **Consultar**.
+- Fecha pasada: personas que asistieron, temperatura, estado, humedad y la nota de la fuente oficial.
+- Fecha futura: personas estimadas, clima, motivo y un aviso visible de **Ir** o **No ir**.
 
 Sin sesión, la vista redirige al login.
 
 ## 8. Criterios de aceptación (BDD)
 
-### Escenario 1 — Registrar asistencia pasada
+### Escenario 1 — Fecha pasada con asistencia y clima
 
 Dado que el usuario está logueado en Tío Yacu  
-Cuando indica una fecha pasada y la cantidad de personas, y pulsa **Registrar asistencia**  
-Entonces el sistema guarda el dato y lo muestra en el historial.
+Cuando elige una fecha pasada, por ejemplo del mes anterior, y pulsa **Consultar**  
+Entonces el sistema muestra cuánta gente asistió ese día, el clima real y la fuente del total mensual. El usuario no escribe la cantidad.
 
 ### Escenario 2 — Predecir una fecha futura con clima
 
-Dado que hay historial guardado y el usuario está logueado  
-Cuando elige una fecha futura y pulsa **Predecir**  
+Dado que el usuario está logueado  
+Cuando elige una fecha futura y pulsa **Consultar**  
 Entonces el sistema consulta el clima de Rioja y muestra personas estimadas, clima, motivo y si conviene **ir** o **no ir**.
 
 ### Escenario 2b — No ir si el día futuro tiene lluvia
@@ -193,16 +182,10 @@ Dado que el usuario está logueado
 Cuando predice una fecha futura cuyo pronóstico es lluvia  
 Entonces el sistema muestra **No ir** y el texto de lluvia prevista.
 
-### Escenario 3 — Ver asistencia anterior
-
-Dado que existen registros guardados  
-Cuando el usuario abre Tío Yacu  
-Entonces ve la lista de fechas pasadas con su cantidad de personas.
-
-### Escenario 4 — Sin sesión
+### Escenario 3 — Sin sesión
 
 Dado que no hay sesión activa  
-Cuando intenta registrar, listar o predecir  
+Cuando intenta consultar una fecha  
 Entonces la API responde 401 y la interfaz vuelve al login.
 
 ## 9. Orden si apruebas

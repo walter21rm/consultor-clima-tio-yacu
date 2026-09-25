@@ -30,21 +30,14 @@
   <main class="shell weather-shell">
     <section class="stage weather-stage">
       <h1 class="headline weather-headline">Asistencia y predicción</h1>
-      <p class="lead">Registra cuánta gente fue en una fecha pasada, o predice una fecha futura según el clima.</p>
+      <p class="lead">Elige una fecha. Si ya pasó, verás cuánta gente asistió y cómo estuvo el clima. Si es futura, verás la estimación y si conviene ir.</p>
 
-      <form id="tioyacu-form" class="form surface" method="post" action="#" novalidate>
-        <div class="field">
+      <form id="tioyacu-form" class="form surface query-bar" method="post" action="#" novalidate>
+        <div class="field grow">
           <label for="visit-date">Fecha</label>
           <input id="visit-date" name="date" type="date" required />
         </div>
-        <div class="field">
-          <label for="attendees">Personas (solo para fechas pasadas)</label>
-          <input id="attendees" name="attendees" type="number" min="0" step="1" placeholder="Ej. 120" />
-        </div>
-        <div class="top-actions">
-          <button type="button" class="btn primary" id="save-btn">Registrar asistencia</button>
-          <button type="button" class="btn ghost" id="predict-btn">Predecir</button>
-        </div>
+        <button type="submit" class="btn primary" id="consult-btn">Consultar</button>
       </form>
 
       <p id="tioyacu-error" class="message error" hidden></p>
@@ -71,11 +64,6 @@
           </div>
         </dl>
       </article>
-
-      <section class="surface" style="margin-top: 1.25rem;">
-        <h2 class="headline" style="font-size: 1.3rem;">Asistencias anteriores</h2>
-        <div id="history"></div>
-      </section>
     </section>
   </main>
 

@@ -47,14 +47,12 @@ Credenciales demo: `admin` / `admin123`.
 
 ## Tío Yacu
 
-Tras iniciar sesión, abre **Tío Yacu** para:
+Tras iniciar sesión, abre **Tío Yacu**, elige una fecha y pulsa **Consultar**.
 
-- registrar cuánta gente asistió en una fecha pasada;
-- ver ese historial;
-- predecir la asistencia de una fecha futura según el clima de Rioja;
-- ver si conviene **ir** o **no ir**.
+- Si la fecha ya pasó, ves cuánta gente asistió y el clima de ese día.
+- Si es futura, ves la estimación y si conviene **ir** o **no ir**.
 
-La especificación está en [docs/sdd-tio-yacu.md](docs/sdd-tio-yacu.md). Los registros se guardan en SQLite (`backend/data/tioyacu.db`).
+No se registra la asistencia a mano. SQLite guarda los totales mensuales oficiales de 2025 (DIRCETUR San Martín / MINCETUR). El día se calcula repartiendo ese total según el clima. La especificación está en [docs/sdd-tio-yacu.md](docs/sdd-tio-yacu.md).
 
 ## Pruebas automatizadas
 

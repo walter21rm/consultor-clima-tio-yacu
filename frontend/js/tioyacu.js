@@ -14,11 +14,12 @@
     const token = requireAuth(localStorage, redirectToLogin);
     if (!token) return;
 
+    const form = document.getElementById('tioyacu-form');
     const errorEl = document.getElementById('tioyacu-error');
     const resultEl = document.getElementById('prediction-result');
     const adviceEl = document.getElementById('advice');
-    const historyEl = document.getElementById('history');
     const metricsEl = document.getElementById('result-metrics');
+    const consultBtn = document.getElementById('consult-btn');
 
     document.getElementById('logout-btn').addEventListener('click', () => {
       logout(localStorage, redirectToLogin);
@@ -29,113 +30,64 @@
       errorEl.hidden = !message;
     }
 
-    async function api(path, options = {}) {
-      const currentToken = requireAuth(localStorage, redirectToLogin);
-      if (!currentToken) return null;
-      const response = await fetch(path, {
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${currentToken}`,
-          ...(options.headers || {}),
-        },
-      });
-      const data = await response.json().catch(() => ({}));
-      if (response.status === 401) {
-        logout(localStorage, redirectToLogin);
-        return null;
-      }
-      if (!response.ok) {
-        throw new Error(data.error || 'No se pudo completar la operación.');
-      }
-      return data;
-    }
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      showError('');
+      resultEl.hidden = true;
 
-    function renderHistory(records) {
-      if (!records.length) {
-        historyEl.innerHTML = '<p class="lead">Aún no hay asistencias registradas.</p>';
+      const currentToken = requireAuth(localStorage, redirectToLogin);
+      if (!currentToken) return;
+
+      const date = document.getElementById('visit-date').value;
+      if (!date) {
+        showError('Elige una fecha.');
         return;
       }
-      historyEl.innerHTML = `
-        <table class="results-table">
-          <thead>
-            <tr><th>Fecha</th><th>Personas</th></tr>
-          </thead>
-          <tbody>
-            ${records
-              .map(
-                (record) =>
-                  `<tr><td>${record.date}</td><td>${record.attendees}</td></tr>`
-              )
-              .join('')}
-          </tbody>
-        </table>
-      `;
-    }
 
-    async function loadHistory() {
-      const data = await api('/api/v1/tioyacu/attendance');
-      if (data) renderHistory(data.records || []);
-    }
+      consultBtn.disabled = true;
+      consultBtn.textContent = 'Consultando…';
 
-    function showResult(data) {
-      resultEl.hidden = false;
-      document.getElementById('result-count').textContent =
-        data.source === 'registrado'
-          ? `${data.estimatedAttendees} personas registradas`
-          : `${data.estimatedAttendees} personas estimadas`;
-      document.getElementById('result-reason').textContent = data.reason || '';
+      try {
+        const response = await fetch(`/api/v1/tioyacu/consult?date=${encodeURIComponent(date)}`, {
+          headers: { Authorization: `Bearer ${currentToken}` },
+        });
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          logout(localStorage, redirectToLogin);
+          return;
+        }
+        if (!response.ok) {
+          throw new Error(data.error || 'No se pudo consultar la fecha.');
+        }
 
-      if (data.advice) {
-        adviceEl.hidden = false;
-        adviceEl.textContent = data.advice === 'ir' ? 'Ir' : 'No ir';
-        adviceEl.className = `advice ${data.advice === 'ir' ? 'go' : 'stop'}`;
-        document.getElementById('result-reason').textContent = `${data.adviceText} ${data.reason || ''}`.trim();
-      } else {
-        adviceEl.hidden = true;
-      }
-
-      if (data.weather) {
-        metricsEl.hidden = false;
+        const people = data.kind === 'pasado' ? data.attendees : data.estimatedAttendees;
+        document.getElementById('result-count').textContent =
+          data.kind === 'pasado'
+            ? `${people} personas asistieron`
+            : `${people} personas estimadas`;
+        document.getElementById('result-reason').textContent = data.note || data.reason || '';
         document.getElementById('result-temperature').textContent = data.weather.temperature;
         document.getElementById('result-condition').textContent = data.weather.condition;
         document.getElementById('result-humidity').textContent = data.weather.humidity;
-      } else {
-        metricsEl.hidden = true;
-      }
-    }
+        metricsEl.hidden = false;
 
-    document.getElementById('save-btn').addEventListener('click', async () => {
-      showError('');
-      resultEl.hidden = true;
-      try {
-        const attendees = document.getElementById('attendees').value;
-        await api('/api/v1/tioyacu/attendance', {
-          method: 'POST',
-          body: JSON.stringify({
-            date: document.getElementById('visit-date').value,
-            attendees: attendees === '' ? null : Number(attendees),
-          }),
-        });
-        await loadHistory();
+        if (data.advice) {
+          adviceEl.hidden = false;
+          adviceEl.textContent = data.advice === 'ir' ? 'Ir' : 'No ir';
+          adviceEl.className = `advice ${data.advice === 'ir' ? 'go' : 'stop'}`;
+          document.getElementById('result-reason').textContent = `${data.adviceText} ${data.reason || ''}`.trim();
+        } else {
+          adviceEl.hidden = true;
+        }
+
+        resultEl.hidden = false;
       } catch (err) {
         showError(err.message);
+      } finally {
+        consultBtn.disabled = false;
+        consultBtn.textContent = 'Consultar';
       }
     });
-
-    document.getElementById('predict-btn').addEventListener('click', async () => {
-      showError('');
-      resultEl.hidden = true;
-      try {
-        const date = document.getElementById('visit-date').value;
-        const data = await api(`/api/v1/tioyacu/prediction?date=${encodeURIComponent(date)}`);
-        if (data) showResult(data);
-      } catch (err) {
-        showError(err.message);
-      }
-    });
-
-    loadHistory().catch((err) => showError(err.message));
   }
 
   if (document.readyState === 'loading') {
