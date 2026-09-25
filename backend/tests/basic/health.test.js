@@ -24,6 +24,6 @@ describe('[Básico] Health y archivos estáticos', () => {
 
     expect(res.status).toBe(200);
     expect(res.text).toContain('Consultar');
-    expect(res.text).toContain('País o región');
+    expect(res.text).toContain('Ciudad o región');
   });
 });

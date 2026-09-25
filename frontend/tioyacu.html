@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tío Yacu — Asistencia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="page-weather">
+  <div class="sky sky-soft" aria-hidden="true">
+    <span class="cloud cloud-a"></span>
+    <span class="cloud cloud-b"></span>
+    <span class="cloud cloud-c"></span>
+  </div>
+
+  <header class="topbar">
+    <div class="brand-lockup">
+      <span class="brand-mark compact">Tío Yacu</span>
+      <span class="brand-sub">Rioja, San Martín</span>
+    </div>
+    <nav class="top-actions">
+      <a class="btn ghost" href="weather.html">Clima</a>
+      <button id="logout-btn" type="button" class="btn ghost">Cerrar sesión</button>
+    </nav>
+  </header>
+
+  <main class="shell weather-shell">
+    <section class="stage weather-stage">
+      <h1 class="headline weather-headline">Asistencia y predicción</h1>
+      <p class="lead">Registra cuánta gente fue en una fecha pasada, o predice una fecha futura según el clima.</p>
+
+      <form id="tioyacu-form" class="form surface" method="post" action="#" novalidate>
+        <div class="field">
+          <label for="visit-date">Fecha</label>
+          <input id="visit-date" name="date" type="date" required />
+        </div>
+        <div class="field">
+          <label for="attendees">Personas (solo para fechas pasadas)</label>
+          <input id="attendees" name="attendees" type="number" min="0" step="1" placeholder="Ej. 120" />
+        </div>
+        <div class="top-actions">
+          <button type="button" class="btn primary" id="save-btn">Registrar asistencia</button>
+          <button type="button" class="btn ghost" id="predict-btn">Predecir</button>
+        </div>
+      </form>
+
+      <p id="tioyacu-error" class="message error" hidden></p>
+
+      <article id="prediction-result" class="result weather-board" hidden>
+        <p id="advice" class="advice" hidden></p>
+        <div class="result-hero compact-hero">
+          <h2 id="result-title">Tío Yacu</h2>
+          <p id="result-count" class="result-summary"></p>
+          <p id="result-reason" class="result-summary"></p>
+        </div>
+        <dl id="result-metrics" class="metrics">
+          <div class="metric metric-temp">
+            <dt>Temperatura</dt>
+            <dd id="result-temperature"></dd>
+          </div>
+          <div class="metric">
+            <dt>Estado</dt>
+            <dd id="result-condition"></dd>
+          </div>
+          <div class="metric metric-humidity">
+            <dt>Humedad</dt>
+            <dd id="result-humidity"></dd>
+          </div>
+        </dl>
+      </article>
+
+      <section class="surface" style="margin-top: 1.25rem;">
+        <h2 class="headline" style="font-size: 1.3rem;">Asistencias anteriores</h2>
+        <div id="history"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/session.js"></script>
+  <script src="js/tioyacu.js"></script>
+</body>
+</html>

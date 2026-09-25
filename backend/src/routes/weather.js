@@ -7,12 +7,6 @@ const router = express.Router();
 router.get('/', authMiddleware, async (req, res) => {
   const location = (req.query.location || '').trim();
 
-  if (!location) {
-    return res.status(400).json({
-      error: 'El parámetro location es requerido.',
-    });
-  }
-
   try {
     const weather = await getWeatherByLocation(location);
     return res.json(weather);

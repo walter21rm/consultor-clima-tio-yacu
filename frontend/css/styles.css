@@ -123,8 +123,122 @@ body {
   animation: drift 40s linear infinite;
 }
 
-.sky-soft .sun {
+.sky-soft .sun,
+.moon,
+.stars,
+.rain {
   display: none;
+}
+
+.moon {
+  position: absolute;
+  top: 9%;
+  right: 14%;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff8dc 0%, #e6d6a5 55%, #c8b57a 100%);
+  box-shadow: 0 0 40px rgba(255, 244, 200, 0.35);
+}
+
+.stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 28% 40%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 63% 22%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 80% 36%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 44% 12%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 72% 70%, #fff 50%, transparent 51%);
+  animation: twinkle 3.5s ease-in-out infinite;
+}
+
+.rain {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.rain span {
+  position: absolute;
+  top: -12%;
+  width: 2px;
+  height: 14px;
+  background: linear-gradient(180deg, transparent, rgba(210, 230, 255, 0.85));
+  animation: rainfall 0.85s linear infinite;
+}
+
+.rain span:nth-child(odd) { left: 8%; animation-duration: 0.7s; }
+.rain span:nth-child(2) { left: 16%; animation-delay: 0.1s; }
+.rain span:nth-child(3) { left: 24%; animation-duration: 0.95s; }
+.rain span:nth-child(4) { left: 32%; }
+.rain span:nth-child(5) { left: 40%; animation-delay: 0.2s; }
+.rain span:nth-child(6) { left: 48%; }
+.rain span:nth-child(7) { left: 56%; animation-duration: 0.75s; }
+.rain span:nth-child(8) { left: 64%; }
+.rain span:nth-child(9) { left: 72%; animation-delay: 0.15s; }
+.rain span:nth-child(10) { left: 80%; }
+.rain span:nth-child(n+11) { left: 88%; }
+.rain span:nth-child(3n) { left: 20%; }
+.rain span:nth-child(4n) { left: 51%; }
+.rain span:nth-child(5n) { left: 67%; }
+.rain span:nth-child(6n) { left: 35%; }
+.rain span:nth-child(7n) { left: 93%; }
+
+body.has-result.theme-morning {
+  --sky-top: #7ec8ff;
+  --sky-mid: #ffe3b3;
+  --sky-bottom: #fff4e0;
+}
+
+body.has-result.theme-afternoon {
+  --sky-top: #4ea2e0;
+  --sky-mid: #f2c56d;
+  --sky-bottom: #f7e7c2;
+}
+
+body.has-result.theme-night {
+  --sky-top: #0b1730;
+  --sky-mid: #162447;
+  --sky-bottom: #1b3358;
+  --ink: #eef3fb;
+  --muted: #b7c4d6;
+  --accent: #8fd0ff;
+  --accent-deep: #d7ecfb;
+  --surface: rgba(16, 28, 48, 0.62);
+  --surface-solid: #14233a;
+  --line: rgba(255, 255, 255, 0.16);
+}
+
+body.has-result.theme-morning .sun,
+body.has-result.theme-afternoon .sun {
+  display: block;
+}
+
+body.has-result.theme-night .moon,
+body.has-result.theme-night .stars {
+  display: block;
+}
+
+body.has-result.sky-rain .rain {
+  display: block;
+}
+
+body.has-result.sky-rain .sun,
+body.has-result.sky-cloudy .sun {
+  display: none;
+}
+
+body.has-result.sky-cloudy .cloud,
+body.has-result.sky-rain .cloud {
+  opacity: 0.9;
+  filter: blur(0.5px);
+  background: rgba(214, 222, 232, 0.82);
+}
+
+body.has-result.theme-night .cloud {
+  background: rgba(190, 200, 220, 0.28);
 }
 
 .shell,
@@ -307,6 +421,40 @@ select:focus {
   background: rgba(255, 255, 255, 0.75);
 }
 
+a.btn {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+}
+
+.top-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.advice {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.advice.go {
+  background: #e5f6ee;
+  color: var(--ok);
+}
+
+.advice.stop {
+  background: #fde8e6;
+  color: var(--danger);
+}
+
+.advice[hidden] {
+  display: none !important;
+}
+
 .hint,
 .course-note {
   margin: 1rem 0 0;
@@ -354,7 +502,8 @@ select:focus {
 
 .loading-panel[hidden],
 .weather-board[hidden],
-.message[hidden] {
+.message[hidden],
+.metrics[hidden] {
   display: none !important;
 }
 
@@ -398,11 +547,107 @@ select:focus {
   line-height: 1;
 }
 
+.result-place {
+  margin: 0.45rem 0 0;
+  color: var(--accent-deep);
+  font-weight: 700;
+}
+
 .result-condition {
-  margin: 0.55rem 0 0;
+  margin: 0.35rem 0 0;
   font-size: 1.1rem;
   color: var(--muted);
   font-weight: 600;
+}
+
+.cities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 0.85rem;
+}
+
+.cities-grid[hidden] {
+  display: none !important;
+}
+
+.city-card {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.95rem 0.9rem;
+  animation: riseIn 0.45s ease both;
+}
+
+.city-card h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.city-card .city-region {
+  margin: 0.2rem 0 0.7rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.city-card .city-temp {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--accent-deep);
+}
+
+.compact-hero h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.result-summary {
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.results-table-wrap {
+  overflow: auto;
+}
+
+.results-table-wrap[hidden] {
+  display: none !important;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.results-table th,
+.results-table td {
+  text-align: left;
+  padding: 0.7rem 0.55rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.results-table th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.results-table td strong {
+  display: block;
+}
+
+.results-table td span {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--muted);
+  font-size: 0.8rem;
 }
 
 .metrics {
@@ -504,6 +749,27 @@ select:focus {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes rainfall {
+  from {
+    transform: translateY(0);
+    opacity: 0.9;
+  }
+  to {
+    transform: translateY(110vh);
+    opacity: 0.15;
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
   }
 }
 

@@ -45,6 +45,17 @@ Abre [http://localhost:3000](http://localhost:3000).
 
 Credenciales demo: `admin` / `admin123`.
 
+## Tío Yacu
+
+Tras iniciar sesión, abre **Tío Yacu** para:
+
+- registrar cuánta gente asistió en una fecha pasada;
+- ver ese historial;
+- predecir la asistencia de una fecha futura según el clima de Rioja;
+- ver si conviene **ir** o **no ir**.
+
+La especificación está en [docs/sdd-tio-yacu.md](docs/sdd-tio-yacu.md). Los registros se guardan en SQLite (`backend/data/tioyacu.db`).
+
 ## Pruebas automatizadas
 
 La suite está en `backend/tests/` y se divide en tres niveles:
@@ -143,6 +154,22 @@ consultor-clima/
     js/auth.js
     js/weather.js
   README.md
+```
+
+## Deploy en AWS EC2
+
+Desde la raíz del proyecto (requiere AWS CLI autenticado y `backend/.env` con tu `WEATHER_API_KEY`):
+
+```powershell
+.\deploy\aws\deploy.ps1
+```
+
+El script crea una instancia **t3.micro** (Amazon Linux 2023) en `us-east-1`, abre HTTP :80, instala Node + nginx y publica la app.
+
+Para terminar la instancia y evitar cargos:
+
+```powershell
+.\deploy\aws\teardown.ps1
 ```
 
 ## Deploy en la nube (Render)

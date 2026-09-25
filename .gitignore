@@ -4,3 +4,6 @@ node_modules/
 .DS_Store
 dist/
 .vscode/
+*.pem
+deploy/aws/instance-state.json
+backend/data/*.db

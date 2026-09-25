@@ -54,7 +54,7 @@ describe('[Intermedio] Middleware JWT', () => {
     });
 
     const res = await request(app)
-      .get('/api/v1/weather?location=Peru')
+      .get('/api/v1/weather?location=Mexico')
       .set(authHeader(token));
 
     expect(res.status).toBe(200);

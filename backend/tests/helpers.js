@@ -23,7 +23,12 @@ function expiredToken() {
 
 function mockWeatherApiOk(overrides = {}) {
   return {
-    location: { name: overrides.name || 'Lima' },
+    location: {
+      name: overrides.name || 'Lima',
+      region: overrides.region || 'Lima',
+      country: overrides.country || 'Peru',
+      localtime: overrides.localtime || '2026-09-22 10:00',
+    },
     current: {
       temp_c: overrides.temp_c ?? 24.4,
       humidity: overrides.humidity ?? 60,

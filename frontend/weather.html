@@ -10,41 +10,36 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body class="page-weather">
-  <div class="sky sky-soft" aria-hidden="true">
+  <div class="sky sky-soft" id="sky" aria-hidden="true">
+    <span class="sun"></span>
+    <span class="moon"></span>
+    <span class="stars"></span>
     <span class="cloud cloud-a"></span>
     <span class="cloud cloud-b"></span>
     <span class="cloud cloud-c"></span>
+    <div class="rain"></div>
   </div>
 
   <header class="topbar">
     <div class="brand-lockup">
       <span class="brand-mark compact">Consultor de Clima</span>
-      <span class="brand-sub">Consulta meteorológica</span>
+      <span class="brand-sub">Perú</span>
     </div>
-    <button id="logout-btn" type="button" class="btn ghost">Cerrar sesión</button>
+    <nav class="top-actions">
+      <a class="btn ghost" href="tioyacu.html">Tío Yacu</a>
+      <button id="logout-btn" type="button" class="btn ghost">Cerrar sesión</button>
+    </nav>
   </header>
 
   <main class="shell weather-shell">
     <section class="stage weather-stage">
-      <h1 class="headline weather-headline">¿Dónde quieres saber el clima?</h1>
-      <p class="lead">Elige un país o región y pulsa Consultar.</p>
+      <h1 class="headline weather-headline">Consulta el clima en Perú</h1>
+      <p class="lead">Escribe una ciudad o región. Si lo dejas vacío, se consultan todas las partes del país.</p>
 
       <form id="weather-form" class="form surface query-bar" method="post" action="#" novalidate>
         <div class="field grow">
-          <label for="location">País o región</label>
-          <select id="location" name="location" required>
-            <option value="">— Selecciona —</option>
-            <option value="Peru">Perú</option>
-            <option value="Lima">Lima</option>
-            <option value="Mexico">México</option>
-            <option value="Spain">España</option>
-            <option value="Madrid">Madrid</option>
-            <option value="Argentina">Argentina</option>
-            <option value="Colombia">Colombia</option>
-            <option value="Chile">Chile</option>
-            <option value="Brazil">Brasil</option>
-            <option value="United States">Estados Unidos</option>
-          </select>
+          <label for="location">Ciudad o región</label>
+          <input id="location" name="location" type="search" placeholder="Ej. Cusco, Arequipa, Puno…" autocomplete="off" />
         </div>
         <button type="submit" class="btn primary" id="consult-btn">Consultar</button>
       </form>
@@ -53,29 +48,15 @@
 
       <div id="weather-loading" class="loading-panel" hidden>
         <span class="spinner" aria-hidden="true"></span>
-        <p>Consultando proveedor del clima…</p>
+        <p>Consultando el clima…</p>
       </div>
 
       <article id="weather-result" class="result weather-board" hidden>
-        <div class="result-hero">
-          <p class="result-kicker">Ubicación</p>
+        <div class="result-hero compact-hero">
           <h2 id="result-location"></h2>
-          <p id="result-condition" class="result-condition"></p>
+          <p id="result-summary" class="result-summary"></p>
         </div>
-        <dl class="metrics">
-          <div class="metric metric-temp">
-            <dt>Temperatura</dt>
-            <dd id="result-temperature"></dd>
-          </div>
-          <div class="metric metric-humidity">
-            <dt>Humedad</dt>
-            <dd id="result-humidity"></dd>
-          </div>
-          <div class="metric metric-state">
-            <dt>Estado</dt>
-            <dd id="result-condition-copy"></dd>
-          </div>
-        </dl>
+        <div id="cities-grid" class="results-table-wrap" hidden></div>
       </article>
     </section>
   </main>

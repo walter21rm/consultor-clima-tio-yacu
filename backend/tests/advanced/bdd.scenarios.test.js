@@ -37,12 +37,20 @@ describe('[Avanzado] Escenarios BDD', () => {
       .get('/api/v1/weather?location=Peru')
       .set(authHeader(token));
 
-    // Entonces el sistema muestra los datos del clima
+    // Entonces el sistema identifica ciudades de Perú y muestra su clima
     expect(weather.status).toBe(200);
-    expect(weather.body.location).toBe('Lima');
-    expect(weather.body.temperature).toBe('23°C');
-    expect(weather.body.condition).toBe('Parcialmente nublado');
-    expect(weather.body.humidity).toBe('64%');
+    expect(weather.body.location).toBe('Perú');
+    expect(Array.isArray(weather.body.cities)).toBe(true);
+    expect(weather.body.cities.length).toBeGreaterThan(0);
+    expect(weather.body.cities[0]).toEqual(
+      expect.objectContaining({
+        city: expect.any(String),
+        temperature: expect.stringMatching(/°C$/),
+        condition: expect.any(String),
+        humidity: expect.stringMatching(/%$/),
+        country: expect.stringMatching(/peru/i),
+      })
+    );
   });
 
   test('Escenario 2: intento de consulta sin sesión activa', async () => {

@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
 const weatherRoutes = require('./routes/weather');
+const tioyacuRoutes = require('./routes/tioyacu');
 
 function createApp() {
   if (!process.env.JWT_SECRET) {
@@ -22,6 +23,7 @@ function createApp() {
 
   app.use('/api/v1/auth', authRoutes);
   app.use('/api/v1/weather', weatherRoutes);
+  app.use('/api/v1/tioyacu', tioyacuRoutes);
 
   app.use((err, _req, res, _next) => {
     console.error(err);
