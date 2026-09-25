@@ -41,7 +41,7 @@ function daysInMonth(year, month) {
 
 function classifyWeather(condition, temperature) {
   const value = String(condition || '').toLowerCase();
-  const rain = /lluvia|lloviz|tormenta|rain|drizzle|thunder|storm/.test(value);
+  const rain = /lluvia|lloviz|tormenta|chubasco|rain|drizzle|thunder|storm/.test(value);
   const cloudy =
     !rain && /nublad|cubiert|neblina|niebla|cloud|overcast|mist|fog/.test(value);
   const sunny = !rain && !cloudy && /soleado|despejado|sunny|clear/.test(value);
@@ -173,7 +173,11 @@ async function fetchForecast(date) {
   return {
     temperature: `${Math.round(day.avgtemp_c)}°C`,
     tempC: day.avgtemp_c,
-    condition: day.condition?.text || 'Desconocido',
+    condition: String(day.condition?.text || 'Desconocido')
+      .replace(/chubascos?\s+ligeros?/gi, 'Lluvia ligera')
+      .replace(/chubascos?/gi, (match) =>
+        match[0] === match[0].toUpperCase() ? 'Lluvia' : 'lluvia'
+      ),
     humidity: `${day.avghumidity}%`,
   };
 }

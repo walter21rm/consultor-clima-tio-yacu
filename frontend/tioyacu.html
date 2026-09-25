@@ -9,13 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body class="page-weather">
-  <div class="sky sky-soft" aria-hidden="true">
-    <span class="cloud cloud-a"></span>
-    <span class="cloud cloud-b"></span>
-    <span class="cloud cloud-c"></span>
-  </div>
-
+<body class="page-tioyacu">
   <header class="topbar">
     <div class="brand-lockup">
       <span class="brand-mark compact">Tío Yacu</span>
@@ -27,9 +21,57 @@
     </nav>
   </header>
 
-  <main class="shell weather-shell">
+  <section class="place-hero" aria-label="Fotografías de la naciente del río Tío Yacu">
+    <div class="place-slides">
+      <figure class="place-slide is-active">
+        <img src="img/tioyacu/naciente.jpg" alt="Puente de paja sobre el río Tío Yacu, con visitantes en el agua cristalina" />
+      </figure>
+      <figure class="place-slide">
+        <img src="img/tioyacu/rio.jpg" alt="Puente de madera y paja del Tío Yacu, con el río y la selva de fondo" />
+      </figure>
+    </div>
+    <div class="place-hero-copy">
+      <div class="place-hero-text">
+        <p class="place-kicker">Naciente del río</p>
+        <h1>Tío Yacu</h1>
+        <p id="place-caption" class="place-caption">Puente y poza natural</p>
+      </div>
+      <div class="place-dots" role="tablist" aria-label="Elegir fotografía">
+        <button type="button" class="place-dot is-active" role="tab" aria-selected="true" aria-label="Puente y poza natural"></button>
+        <button type="button" class="place-dot" role="tab" aria-selected="false" aria-label="El río bajo el puente"></button>
+      </div>
+    </div>
+  </section>
+
+  <main class="tioyacu-main">
+    <p class="place-credit">
+      Fotos de
+      <a href="https://commons.wikimedia.org/wiki/File:Tioyacu_DSCN8420mod.jpg">JYB Devot</a>
+      y
+      <a href="https://commons.wikimedia.org/wiki/File:TioyacuRioja.jpg">EfraSC</a>,
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es">CC BY-SA 4.0</a>
+    </p>
+    <ul class="place-facts">
+      <li>
+        <strong>12–15 °C</strong>
+        <span>Agua de la naciente</span>
+      </li>
+      <li>
+        <strong>Pozas</strong>
+        <span>Agua cristalina de la montaña</span>
+      </li>
+      <li>
+        <strong>8 metros</strong>
+        <span>Cascada principal</span>
+      </li>
+      <li>
+        <strong>Segunda Jerusalén</strong>
+        <span>A unos 16 km de Rioja</span>
+      </li>
+    </ul>
+
     <section class="stage weather-stage">
-      <h1 class="headline weather-headline">Asistencia y predicción</h1>
+      <h2 class="headline weather-headline">Asistencia y predicción</h2>
       <p class="lead">Elige una fecha. Si ya pasó, verás cuánta gente asistió y cómo estuvo el clima. Si es futura, verás la estimación y si conviene ir.</p>
 
       <form id="tioyacu-form" class="form surface query-bar" method="post" action="#" novalidate>

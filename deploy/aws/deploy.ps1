@@ -18,7 +18,7 @@ function Assert-Aws {
   if (-not $aws) {
     throw "AWS CLI no está en PATH. Cierra y abre la terminal después de instalarlo."
   }
-  aws sts get-caller-identity --output json | Out-Null
+  aws sts get-caller-identity --region $Region --output json | Out-Null
   if ($LASTEXITCODE -ne 0) {
     throw "AWS no está autenticado. Ejecuta: aws configure"
   }
@@ -73,6 +73,10 @@ function Ensure-KeyPair {
   }
   $created = Invoke-AwsJson @("ec2", "create-key-pair", "--region", $Region, "--key-name", $KeyName, "--query", "KeyMaterial", "--output", "text")
   if ($created.Code -ne 0 -or -not $created.Text) { throw "No se pudo crear el key pair. $($created.Text)" }
+  if (Test-Path $KeyPath) {
+    icacls $KeyPath /grant:r "$env:USERNAME`:F" | Out-Null
+    Remove-Item $KeyPath -Force
+  }
   Set-Content -Path $KeyPath -Value ($created.Text -replace "`r", "") -NoNewline -Encoding ascii
   icacls $KeyPath /inheritance:r /grant:r "$env:USERNAME`:R" | Out-Null
 }
@@ -90,6 +94,7 @@ function Ensure-SecurityGroup {
 
   Invoke-AwsJson @("ec2", "authorize-security-group-ingress", "--region", $Region, "--group-id", $sgId, "--protocol", "tcp", "--port", "22", "--cidr", $myIp) | Out-Null
   Invoke-AwsJson @("ec2", "authorize-security-group-ingress", "--region", $Region, "--group-id", $sgId, "--protocol", "tcp", "--port", "80", "--cidr", "0.0.0.0/0") | Out-Null
+  Invoke-AwsJson @("ec2", "authorize-security-group-ingress", "--region", $Region, "--group-id", $sgId, "--protocol", "tcp", "--port", "443", "--cidr", "0.0.0.0/0") | Out-Null
   return $sgId
 }
 

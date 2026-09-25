@@ -10,6 +10,8 @@ describe('[Básico] Vista Tío Yacu', () => {
     expect(res.status).toBe(200);
     expect(res.text).toContain('Tío Yacu');
     expect(res.text).toContain('Consultar');
+    expect(res.text).toContain('place-slide');
+    expect(res.text).toContain('CC BY-SA 4.0');
     expect(res.text).not.toContain('Registrar asistencia');
   });
 });

@@ -4,8 +4,8 @@ set -euxo pipefail
 dnf update -y
 dnf install -y nginx git tar
 
-# Node.js 20 LTS
-curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+# Node.js 22: node:sqlite (asistencia de Tío Yacu) no existe en Node 20
+curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -
 dnf install -y nodejs
 
 mkdir -p /opt/consultor-clima

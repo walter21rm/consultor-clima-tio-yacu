@@ -53,7 +53,7 @@ Ajustes sobre la base, aplicados en este orden y luego redondeados a entero, con
 
 | Condición del pronóstico | Ajuste |
 | --- | --- |
-| Lluvia, llovizna o tormenta | −35 % |
+| Lluvia, llovizna, chubasco o tormenta | −35 % |
 | Nublado, cubierto, neblina o niebla | −10 % |
 | Soleado o despejado | +15 % |
 | Temperatura menor a 18 °C | −10 % adicional |
@@ -68,7 +68,9 @@ Solo aplica a fechas futuras. Se decide con el pronóstico de ese día, no con l
 
 | Pronóstico | Indicación |
 | --- | --- |
-| Lluvia, llovizna o tormenta | **No ir** |
+| Lluvia, llovizna, chubasco o tormenta | **No ir** |
+
+Si WeatherAPI responde «chubasco», el sistema lo trata como lluvia. «Chubasco ligero» se muestra como «lluvia ligera»; cualquier otro chubasco se muestra como «lluvia». En ambos casos la indicación es **no ir**.
 | Temperatura menor a 16 °C | **No ir** |
 | Soleado, despejado, nublado, cubierto o neblina, con 16 °C o más | **Ir** |
 
@@ -156,6 +158,12 @@ Errores: `400` fecha inválida. `401` sin sesión. `502` si falla el clima hist�
 
 Nueva vista **Tío Yacu**, accesible tras el login, además de la consulta de clima que ya existe.
 
+La parte superior muestra fotografías reales de la naciente: el puente de paja y las pozas. Cambian solas, con una transición suave, y también se eligen con los puntos. El texto de cada foto dice qué se está viendo. Debajo se cita a los autores (JYB Devot y EfraSC, licencia CC BY-SA 4.0).
+
+Junto a las fotos aparecen datos del lugar: agua de la naciente a 12–15 °C, pozas de agua cristalina, cascada principal de 8 metros y la ubicación en Segunda Jerusalén, a unos 16 km de Rioja.
+
+La consulta queda debajo de esa presentación:
+
 - Campo de fecha y botón **Consultar**.
 - Fecha pasada: personas que asistieron, temperatura, estado, humedad y la nota de la fuente oficial.
 - Fecha futura: personas estimadas, clima, motivo y un aviso visible de **Ir** o **No ir**.
@@ -163,6 +171,11 @@ Nueva vista **Tío Yacu**, accesible tras el login, además de la consulta de cl
 Sin sesión, la vista redirige al login.
 
 ## 8. Criterios de aceptación (BDD)
+
+### Escenario 0 — Presentación del lugar
+
+Dado que el usuario está logueado en Tío Yacu  
+Entonces ve fotografías reales de la naciente que cambian solas, los datos del lugar y la cita de los autores. Puede elegir una foto con los puntos.
 
 ### Escenario 1 — Fecha pasada con asistencia y clima
 
@@ -179,8 +192,8 @@ Entonces el sistema consulta el clima de Rioja y muestra personas estimadas, cli
 ### Escenario 2b — No ir si el día futuro tiene lluvia
 
 Dado que el usuario está logueado  
-Cuando predice una fecha futura cuyo pronóstico es lluvia  
-Entonces el sistema muestra **No ir** y el texto de lluvia prevista.
+Cuando predice una fecha futura cuyo pronóstico es lluvia o chubasco  
+Entonces el sistema muestra **No ir** y el texto de lluvia prevista. Si el pronóstico dice «chubasco ligero», el estado visible es «lluvia ligera».
 
 ### Escenario 3 — Sin sesión
 

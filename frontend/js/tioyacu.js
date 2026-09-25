@@ -14,6 +14,44 @@
     const token = requireAuth(localStorage, redirectToLogin);
     if (!token) return;
 
+    const captions = ['Puente y poza natural', 'El río bajo el puente'];
+    const slides = Array.from(document.querySelectorAll('.place-slide'));
+    const dots = Array.from(document.querySelectorAll('.place-dot'));
+    const captionEl = document.getElementById('place-caption');
+    let slideIndex = 0;
+    let slideTimer;
+
+    function showSlide(next) {
+      slides[slideIndex].classList.remove('is-active');
+      slides[slideIndex].setAttribute('aria-hidden', 'true');
+      dots[slideIndex].classList.remove('is-active');
+      dots[slideIndex].setAttribute('aria-selected', 'false');
+      slideIndex = next;
+      slides[slideIndex].classList.add('is-active');
+      slides[slideIndex].setAttribute('aria-hidden', 'false');
+      dots[slideIndex].classList.add('is-active');
+      dots[slideIndex].setAttribute('aria-selected', 'true');
+      if (captionEl) captionEl.textContent = captions[slideIndex];
+    }
+
+    function startSlides() {
+      clearInterval(slideTimer);
+      slideTimer = setInterval(() => showSlide((slideIndex + 1) % slides.length), 6500);
+    }
+
+    slides.forEach((slide, index) => {
+      slide.setAttribute('aria-hidden', index === 0 ? 'false' : 'true');
+    });
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        showSlide(index);
+        startSlides();
+      });
+    });
+    if (slides.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      startSlides();
+    }
+
     const form = document.getElementById('tioyacu-form');
     const errorEl = document.getElementById('tioyacu-error');
     const resultEl = document.getElementById('prediction-result');

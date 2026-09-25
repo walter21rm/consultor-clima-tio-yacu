@@ -800,6 +800,216 @@ a.btn {
   }
 }
 
+.page-tioyacu {
+  background: #e7f3ee;
+}
+
+.page-tioyacu .topbar {
+  position: absolute;
+  z-index: 4;
+  inset: 0 0 auto 0;
+  color: #fff;
+}
+
+.page-tioyacu .brand-mark,
+.page-tioyacu .brand-sub {
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+
+.page-tioyacu .btn.ghost {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.38);
+}
+
+.page-tioyacu .btn.ghost:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.place-hero {
+  position: relative;
+  height: min(68vh, 620px);
+  min-height: 460px;
+  overflow: hidden;
+  background: #12352c;
+}
+
+.place-slides,
+.place-slide {
+  position: absolute;
+  inset: 0;
+}
+
+.place-slide {
+  margin: 0;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+
+.place-slide.is-active {
+  opacity: 1;
+  z-index: 1;
+}
+
+.place-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+}
+
+.place-slide:last-child img {
+  object-position: center 30%;
+}
+
+.place-slide.is-active img {
+  animation: placeDrift 16s ease-in-out alternate infinite;
+}
+
+.place-hero-copy {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 5.5rem 7vw 3.4rem;
+  color: #fff;
+  background: linear-gradient(180deg, transparent 0%, rgba(8, 28, 24, 0.78) 72%);
+}
+
+.place-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.place-hero-copy h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(3.1rem, 8vw, 5.4rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+}
+
+.place-caption {
+  margin: 0.7rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.place-dots {
+  display: flex;
+  gap: 0.45rem;
+  margin-bottom: 0.35rem;
+  flex: none;
+}
+
+.place-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+}
+
+.place-dot.is-active {
+  width: 1.7rem;
+  background: #fff;
+}
+
+.place-credit {
+  margin: 0.15rem 0 0;
+  color: #4d647a;
+  font-size: 0.75rem;
+}
+
+.place-credit a {
+  color: #1569a8;
+}
+
+.tioyacu-main {
+  position: relative;
+  z-index: 2;
+  width: min(100% - 2rem, 860px);
+  margin: 0 auto 2.5rem;
+  padding-top: 1.15rem;
+  display: grid;
+  gap: 1.15rem;
+}
+
+.place-facts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.place-facts li {
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 16px;
+  padding: 0.9rem 0.95rem;
+  box-shadow: var(--shadow);
+}
+
+.place-facts strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.place-facts span {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.3;
+}
+
+.page-tioyacu .weather-stage {
+  width: 100%;
+}
+
+@keyframes placeDrift {
+  from {
+    transform: scale(1.04);
+  }
+  to {
+    transform: scale(1.12) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+@media (max-width: 700px) {
+  .place-hero {
+    min-height: 420px;
+    height: 70vh;
+  }
+
+  .place-facts {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .place-hero-copy {
+    padding: 4.2rem 1.1rem 1.6rem;
+  }
+
+  .place-credit {
+    margin: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
